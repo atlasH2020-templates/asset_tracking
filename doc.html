@@ -3,6 +3,7 @@
     <style type="text/css">
         body { font-family: courier, courier new, monospace; font-size:12px; margin-left: 42px; width: 465px; white-space: pre-line; }
         h2 { margin: 10px 0 0 -22px; font-size:12px; padding: 0 !important }
+        h3 { margin: 10px 0 0 -22px; font-size:11px; padding: 0 !important }
         table { font-size: 10px; margin-left: -22px; width: 480px; }
         div.header { padding: 0; margin: 0 0 0 -22px; white-space: pre-wrap; }
     </style>
@@ -13,20 +14,27 @@
 Experimental ATLAS Service Template Specification
 Name                                               asset_tracking
 Version                                                     0.0.1
-Author(s)                                                     ???
+Author(s)                                           Pouria Faraji          
 </div>
 
 <h2>The "asset_tracking" ATLAS Service Template</h2>
 <div style="margin-left: -22px;">
 Abstract
 
-This document describes the specifications for the asset_tracking service whose purpose is to track movements and environmental measurements of assets.
+This document describes the specifications for the asset_tracking service whose purpose is to track movements and environmental measurements of returnable assets.
 </div>
 <h2>1 Introduction</h2>
 
-TO BE DONE
+The asset_tracking service template is designed to provide necessary APIs to track and trace returnable assets. Track and trace includes the following:
+<pre>
+    - Tracking data, which is for tracking real-time 
+    sensor's data regarding returnable assets for a specific 
+    shipment referenced by GSIN and SSCC.
 
-The asset_tracking service template is designed with the idea to provide discrete measurements of sensors located within a boundary region and during a time interval. For outdoors sensors, the boundary region is typically that of a field which clients can retrieve from a field_data service. In the case of indoor sensors, the boundaries would typically be that of barns.
+    - Asset data, which is for tracking real-time sensor's data
+    regarding returnable assets referenced by its MAC address
+    disregarding any shipment.
+</pre>
 
 <h2>2 Terminology</h2>
 
@@ -36,71 +44,94 @@ The notation "[xxx]" (xxx in square brackets) is equivalent to "array of xxx".
 
 When used alone, the term "asset_tracking" refers to "asset_tracking ATLAS Service Template". Instead, "asset_tracking service" is equivalent to "an ATLAS Service implementing the asset_tracking ATLAS Service Template".
 
+<h3>2.1 GSIN</h3>
+The Global Shipment Identification Number (GSIN) is the GS1 Identification Key used to identify a logical grouping of logistic units for the purpose of a transport shipment from the seller to the buyer. The unique identifier is comprised of a GS1 Company Prefix, a Shipper Reference, and a Check Digit.
+
+<h3>2.2 SSCC</h3>
+The Serial Shipping Container Code (SSCC) is the GS1 identifier used to identify a logistic unit. This unique identifier is comprised of an Extension Digit, a GS1 Company Prefix, a Serial Reference, and a Check Digit.
+
+<h3>2.3 MAC Address</h3>
+Unique physical identifier of returnable asssets, including beacons and trackers, which are attachd to pallets and containers.
+
 <h2>3 Pre-requisites</h2>
 
 A thorough understanding in the following is required for
 both service consumers or service provider implementors:
 <pre>
-    - GeoJSON specifications (<a href="https://geojson.org/">https://geojson.org/</a>)
+    - GeoJSON specifications (<a href="https://geojson.org/">https://geojson.org/</a>) 
     - ISO8601 representation of dates and times
       (<a href="https://www.iso.org/iso-8601-date-and-time-format.html">https://www.iso.org/iso-8601-date-and-time-format.html</a>)
 </pre>
 <h2>4 asset_tracking Usage Scenarios</h2>
 
-TO BE DONE
+The following are some examples of how the asset_tracking service can be used:
+<h3>4.1 Product Monitoring</h3>
+The "asset_tracking" service template can provide real-time temperature and humidity data for a product shipped using a pallet. In this case, the service can be used to see if products are in a good environment in terms of temperature and humidity.
+
+<h3>4.2 Product Tracking</h3>
+Clients can get general information regarding the shipping status of the their products. For example, the client can get the current location of the product, the time it was shipped, and the time it was received.
 
 <h2>5 Service Template Structure</h2>
+Here the purpose of each API in the service template will be discussed.
+<h3>5.1 tracking_data</h3>
+The Service Template has multiple endpoints. One of the endpoints is <i>tracking_data</i> which provides tracking data e.g. temperature, humidity, and location for a returnable asset.
 
-The Service Template is divided into two endpoints. One to retrieve the data and another two show the available measurements (capabilities).
+The <i>tracking_data</i> is used to get information about a specific asset in a specific shipment. Each asset is identified via a logistic unit identifier which is called SSCC, and each shipment is identified by a unique identifier which is called GSIN.
 
-The data endpoint is used to get the measures within a boundary region, provided in time series and during a time interval.
+Therefore, to track a specific asset in a specific shipment, the client needs to provide the SSCC and GSIN of the asset.
 
-For each parameter with available data at the specified boundary, a time series per aggregation is returned. Note that null values may be returned as part of a time series when no measurements are available.
+Moreover, client can have extra filter for the tracking data. For example, the client can filter the tracking data by time.
 
-Therefore, those three parameters should be provided in the request, as it is shown below:
+SSCC and GSIN are required parameters for the <i>tracking_data</i> endpoint. However, "from" and "to" parameters are optional as it is shown below:
+
 <pre>
 +--------------------------------------------+
-| data                                       |
+| tracking_data                              |
 +-------------+------------------------------+
-|      Inputs | Asset id                     |
-|             | Time interval                |
-|             | Required parameters          |
+|      Inputs | GSIN*                        |
+|             | SSCC*                        |
+|             | from                         |
+|             | to                           |
+|             | limit                        |
 +-------------+------------------------------+
-|     Outputs | available asset data         |
+|     Outputs | Shipping information         |
+|             | Sensor data as a list        |
 +-------------+------------------------------+
 </pre>
-On the other hand, the capabilities endpoint contains all the parameters available for each asset_tracking service implementor. It also contains the aggregations defined for each parameter.
+There is also "limit" parameter which puts a limit to the number of data points returned by the API. The default value for "limit" is 10, and the value 0 means return all data.
 
-A query to the capabilities endpoint returns an array of strings representing the parameters supported by the implementor, given the availability of physical sensors within the requested boundaries.
+Please refer to the openAPI asset_tracking specification for details about data schemas and formats returned by the <i>tracking_data</i> endpoint, as well as to ANNEX 1 for a list of normalized measurements that may be offered by a asset_tracking service.
+
+<h3>5.2 asset_data</h3>
+Another endpoint is <i>asset_data</i>, which like <i>tracking_data</i> is used for getting sensor's data e.g. temperature, humidity, and location for a returnable asset.
+
+The only difference is that returnable assets are referenced by their physical identifier (MAC address), without considering asset's shipment, or whether any shipment is associated to the asset or not.
+
+This is useful to track only assets and not shipments.
+
+Identifier (MAC address) is required in the parameters of <i>asset_data</i> endpoint. However, "from", "to", and "limit" parameters are optional as it is shown below:
+
 <pre>
 +--------------------------------------------+
-| capabilities                               |
+| asset_data                                 |
 +-------------+------------------------------+
-|      Inputs | Asset id                     |
+|      Inputs | identifier*                  |
+|             | from                         |
+|             | to                           |
+|             | limit                        |
 +-------------+------------------------------+
-|     Outputs | Supported parameters         |
+|     Outputs | Asset information            |
+|             | Sensor data as a list        |
 +-------------+------------------------------+
 </pre>
-Please refer to the openAPI asset_tracking specification for details about data schemas and formats returned by the capabilities endpoint, as well as to ANNEX 1 for a list of normalized measurements that may be offered by a asset_tracking service.
-
-asset_tracking services are not required to handle intense traffic from a single client, such as the one that may result from being directly invoked on user interface interactions in an FMIS, for instance. Implementors MAY generate a 429 TOO MANY REQUESTS error response if the rate of calls exceeds some pre-defined quota. Clients requiring more intense field information are advised to implement a mirroring mechanism using the subscription functions.
-
-TO BE DONE: SUBSCRIPTIONS, ETC
 
 <h2>5.1 Queries with no data available</h2>
 
-It could happen that there is no data available for the requested parameters at the specified boundary and time interval. A common example for that could be that sensors for the requested parameters were never installed within the boundaries, or they were not online during the time interval.
+There are some cases in which there is no data. For example, in the specified time range, there was no shipping information for the asset (The shipping was finished before or has not started yet).
 
-In those cases, an error message will be returned to the request.
+In this case, the response will still be valid but with an empty list for data.
 
-<h2>5.2 Invalid time interval</h2>
-
-Sometimes the requested time interval may be invalid according to the available sensor data. For example, if the time interval is 7 minutes and only time series of 1 hour are available.
-
-In all those cases an error would be returned to the request.
-
-To solve the most common requests, the next default time intervals should be covered by the asset_tracking service implementor: 1 Hour, 1 day, 1 week, 1 month and their multiples.
-
+<!--
 <h2>6 Access and Authentication</h2>
 
 Farmers MUST have an account setup on an asset_tracking service in order to authenticate and access API endpoints. The service implementor is responsible for the creation of accounts; it is not covered in the service template specifications.
@@ -109,28 +140,17 @@ Unless specifically documented in the OpenAPI specifications, all API calls must
 
 Some of the information held by advisor services may be considered sensitive from a GDPR perspective. The service's authorization server SHOULD request the client's end-user consent at service pairing time in order to deliver an access token.
 
+-->
+
 <h2>ANNEX 1 - asset_tracking Measurement Types</h2>
 
 The current list of standardized measurement parameters that may be returned by asset_tracking services is listed below. Newer versions of the asset_tracking template are likely to extend this list.
+
 <table>
-<tr><td>PARAMETER</td><td>UNIT</td><td>DESCRIPTION</td><td width="80">MANDATORY<br/>AGGREGATIONS</td></tr>
-<tr><td>ATMO__T</td><td>&#8451;</td><td>Atmospheric temperature</td><td>min, max, avg</td></tr>
-<tr><td>ATMO__RH</td><td>%</td><td>Atmospheric relative humidity</td><td>min, max, avg</td></tr>
-<tr><td>ATMO__P</td><td>hPa</td><td>Atmospheric pressure</td><td>min, max, avg</td></tr>
-<tr><td>ATMO__WIND_SPEED</td><td>m/s</td><td>Wind speed</td><td>min, max, avg</td></tr>
-<tr><td>ATMO__IRRADIATION</td><td>W/m<sup>2</sup></td><td>Solar irradiation</td><td>min, max, avg</td></tr>
-<tr><td>ATMO__SSR</td><td>W/m<sup>2</sup></td><td>Surface Solar Radiation (incoming solar radiation on soil surface)</td><td>min, max, avg</td></tr>
-<tr><td>ATMO__WIND_GUSTINESS</td><td>m/s<sup>2</sup></td><td>Wind gusts</td><td>min, max, avg</td></tr>
-<tr><td>ATMO__RAINFLOW</td><td>mm/h</td><td>Precipitation intensity</td><td>min, max, avg</td></tr>
-<tr><td>ATMO__RAINFALL</td><td>mm</td><td>Accumulated precipitation</td><td>sum</td></tr>
-<tr><td>SOIL__VMC</td><td>%</td><td>Soil volumetric moisture content</td><td>min, max, avg</td></tr>
-<tr><td>SOIL__T</td><td>&#8451;</td><td>Soil temperature</td><td>min, max, avg</td></tr>
-<tr><td>SOIL__WETNESS</td><td>%</td><td>Soil wetness index (free water on soil surface)</td><td>min, max, avg</td></tr>
-<tr><td>CANOPY__WETNESS</td><td>%</td><td>Canopy wetness index (free water on sensor surface)</td><td>min, max, avg</td></tr>
-</table>
-
-It should be taken into account that some parameters could represent a measurement at any height, due to some uncontrolled offset on the location descriptor.
-
-
+    <tr><td>PARAMETER</td><td>UNIT</td><td>DESCRIPTION</td></tr>
+    <tr><td>temperature</td><td>&#8451;</td><td>Atmospheric Temperature</td></tr>
+    <tr><td>humidity</td><td>%</td><td>Atmospheric Relative Humidity</td></tr>
+    <tr><td>pressure</td><td>hPa</td><td>Atmospheric Pressure</td></tr>
+    </table>
 </body>
 </html>
