@@ -53,6 +53,8 @@ The Serial Shipping Container Code (SSCC) is the GS1 identifier used to identify
 <h3>2.3 MAC Address</h3>
 Unique physical identifier of returnable asssets, including beacons and trackers, which are attachd to pallets and containers.
 
+GSIN and SSCC both are unique identifiers in GS1 standard which are generated and assigned to logistic units while a shipment is being created. Whereas, asset's identifier (MAC address) is a unique physical identifier which is hardcoded into the asset and never changes. Therefore, a container or pallet in mupltiple shipments during its lifetime can have multiple GSIN and SSCC, whereas, the returnable asset installed in the pallet or container will have only one MAC address.
+
 <h2>3 Pre-requisites</h2>
 
 A thorough understanding in the following is required for
@@ -98,7 +100,7 @@ SSCC and GSIN are required parameters for the <i>tracking_data</i> endpoint. How
 |             | Sensor data as a list        |
 +-------------+------------------------------+
 </pre>
-There is also "limit" parameter which puts a limit to the number of data points returned by the API. The default value for "limit" is 10, and the value 0 means return all data.
+There is also "limit" parameter which puts a limit to the number of data points returned by the API.
 
 Please refer to the openAPI asset_tracking specification for details about data schemas and formats returned by the <i>tracking_data</i> endpoint, as well as to ANNEX 1 for a list of normalized measurements that may be offered by a asset_tracking service.
 
@@ -151,6 +153,8 @@ The current list of standardized measurement parameters that may be returned by 
     <tr><td>temperature</td><td>&#8451;</td><td>Atmospheric Temperature</td></tr>
     <tr><td>humidity</td><td>%</td><td>Atmospheric Relative Humidity</td></tr>
     <tr><td>pressure</td><td>hPa</td><td>Atmospheric Pressure</td></tr>
+    <tr><td>gps.lat</td><td>Degree(&#176;)</td><td>Latitude</td></tr>
+    <tr><td>gps.long</td><td>Degree(&#176;)</td><td>Longitude</td></tr>
     </table>
 </body>
 </html>
