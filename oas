@@ -5,6 +5,12 @@
         "description": "Template for Asset Tracking services",
         "version": "0.0.1"
     },
+    "servers": [
+        {
+            "url": "http://167.235.252.46:9009",
+            "description": "NGS Production Environment"
+        }
+    ],
     "paths": {
         "/tracking_data": {
             "post": {
@@ -185,13 +191,13 @@
                         "type": "string",
                         "description": "The timestamp to start from. Optional",
                         "format": "date-time",
-                        "example": "2022-09-26T13:44:11.590399"
+                        "example": "2022-10-10T12:47:05.899139"
                     },
                     "to": {
                         "type": "string",
                         "description": "The timestamp to end at. Optional",
                         "format": "date-time",
-                        "example": "2022-09-27T13:44:11.590412"
+                        "example": "2022-10-11T12:47:05.899152"
                     },
                     "limit": {
                         "type": "integer",
@@ -269,7 +275,7 @@
                         "type": "string",
                         "description": "Timestamp of the data point",
                         "format": "date-time",
-                        "example": "2022-09-27T13:44:11.583380"
+                        "example": "2022-10-11T12:47:05.891905"
                     },
                     "measurements": {
                         "$ref": "#/components/schemas/Measurements"
@@ -299,13 +305,13 @@
                         "type": "string",
                         "description": "The timestamp to start from. Optional",
                         "format": "date-time",
-                        "example": "2022-09-26T13:44:11.584619"
+                        "example": "2022-10-10T12:47:05.893049"
                     },
                     "to": {
                         "type": "string",
                         "description": "The timestamp to end at. Optional",
                         "format": "date-time",
-                        "example": "2022-09-27T13:44:11.584633"
+                        "example": "2022-10-11T12:47:05.893063"
                     },
                     "limit": {
                         "type": "integer",
