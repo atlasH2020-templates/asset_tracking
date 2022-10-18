@@ -21,7 +21,7 @@ Author(s)                                           Pouria Faraji
 <div style="margin-left: -22px;">
 Abstract
 
-This document describes the specifications for the asset_tracking service whose purpose is to track movements and environmental measurements of returnable assets.
+This document describes the specifications for the asset_tracking service template whose purpose is to track movements and environmental measurements of returnable assets.
 </div>
 <h2>1 Introduction</h2>
 
@@ -32,8 +32,8 @@ The asset_tracking service template is designed to provide necessary APIs to tra
     shipment referenced by GSIN and SSCC.
 
     - Asset data, which is for tracking real-time sensor's data
-    regarding returnable assets referenced by its MAC address
-    disregarding any shipment.
+    regarding returnable assets referenced by for instance 
+    its MAC address disregarding any shipment.
 </pre>
 
 <h2>2 Terminology</h2>
@@ -53,14 +53,15 @@ The Serial Shipping Container Code (SSCC) is the GS1 identifier used to identify
 <h3>2.3 MAC Address</h3>
 Unique physical identifier of returnable asssets, including beacons and trackers, which are attachd to pallets and containers.
 
-GSIN and SSCC both are unique identifiers in GS1 standard which are generated and assigned to logistic units while a shipment is being created. Whereas, asset's identifier (MAC address) is a unique physical identifier which is hardcoded into the asset and never changes. Therefore, a container or pallet in mupltiple shipments during its lifetime can have multiple GSIN and SSCC, whereas, the returnable asset installed in the pallet or container will have only one MAC address.
+GSIN and SSCC both are unique identifiers in GS1 standard which are generated and assigned to logistic units while a shipment is being created. Whereas, asset's identifier (for instance MAC address) is a unique physical identifier which is hardcoded into the asset and never changes. Therefore, a container or pallet in mupltiple shipments during its lifetime can have multiple GSIN and SSCC, whereas, the returnable asset installed in the pallet or container will have only one MAC address.
 
 <h2>3 Pre-requisites</h2>
 
 A thorough understanding in the following is required for
 both service consumers or service provider implementors:
 <pre>
-    - GeoJSON specifications (<a href="https://geojson.org/">https://geojson.org/</a>) 
+    - World Geodetic Coordinate Reference System (WGS84) 
+      (<a href="https://gisgeography.com/wgs84-world-geodetic-system/">https://gisgeography.com/wgs84-world-geodetic-system/</a>) 
     - ISO8601 representation of dates and times
       (<a href="https://www.iso.org/iso-8601-date-and-time-format.html">https://www.iso.org/iso-8601-date-and-time-format.html</a>)
 </pre>
@@ -70,13 +71,12 @@ The following are some examples of how the asset_tracking service can be used:
 <h3>4.1 Product Monitoring</h3>
 The "asset_tracking" service template can provide real-time temperature and humidity data for a product shipped using a pallet. In this case, the service can be used to see if products are in a good environment in terms of temperature and humidity.
 
-<h3>4.2 Product Tracking</h3>
-Clients can get general information regarding the shipping status of the their products. For example, the client can get the current location of the product, the time it was shipped, and the time it was received.
-
 <h2>5 Service Template Structure</h2>
 Here the purpose of each API in the service template will be discussed.
 <h3>5.1 tracking_data</h3>
-The Service Template has multiple endpoints. One of the endpoints is <i>tracking_data</i> which provides tracking data e.g. temperature, humidity, and location for a returnable asset.
+The Service Template has multiple endpoints. One of the endpoints is <i>tracking_data</i> which provides tracking data e.g. temperature, humidity, and location for a returnable asset. 
+
+There is also possibility for any of the tracking data to be <i>null</i> in case of absence in the entry point.
 
 The <i>tracking_data</i> is used to get information about a specific asset in a specific shipment. Each asset is identified via a logistic unit identifier which is called SSCC, and each shipment is identified by a unique identifier which is called GSIN.
 
@@ -84,77 +84,67 @@ Therefore, to track a specific asset in a specific shipment, the client needs to
 
 Moreover, client can have extra filter for the tracking data. For example, the client can filter the tracking data by time.
 
-SSCC and GSIN are required parameters for the <i>tracking_data</i> endpoint. However, "from" and "to" parameters are optional as it is shown below:
+SSCC and GSIN are required parameters for the <i>tracking_data</i> endpoint. However, time interval parameters are optional as it is shown below:
 
 <pre>
-+--------------------------------------------+
-| tracking_data                              |
-+-------------+------------------------------+
-|      Inputs | GSIN*                        |
-|             | SSCC*                        |
-|             | from                         |
-|             | to                           |
-|             | limit                        |
-+-------------+------------------------------+
-|     Outputs | Shipping information         |
-|             | Sensor data as a list        |
-+-------------+------------------------------+
++------------------------------------------------+
+| tracking_data                                  |
++-------------+----------------------------------+
+|      Inputs | Shipment URIs (e.g. GSIN, SSCC)* |
+|             | Time interval                    |
++-------------+----------------------------------+
+|     Outputs | Shipping information             |
+|             | Sensor data as a list            |
++-------------+----------------------------------+
 </pre>
-There is also "limit" parameter which puts a limit to the number of data points returned by the API.
 
 Please refer to the openAPI asset_tracking specification for details about data schemas and formats returned by the <i>tracking_data</i> endpoint, as well as to ANNEX 1 for a list of normalized measurements that may be offered by a asset_tracking service.
 
 <h3>5.2 asset_data</h3>
 Another endpoint is <i>asset_data</i>, which like <i>tracking_data</i> is used for getting sensor's data e.g. temperature, humidity, and location for a returnable asset.
 
-The only difference is that returnable assets are referenced by their physical identifier (MAC address), without considering asset's shipment, or whether any shipment is associated to the asset or not.
+The only difference is that returnable assets are referenced by their physical identifier (for instance MAC address), without considering asset's shipment, or whether any shipment is associated to the asset or not.
 
 This is useful to track only assets and not shipments.
 
-Identifier (MAC address) is required in the parameters of <i>asset_data</i> endpoint. However, "from", "to", and "limit" parameters are optional as it is shown below:
+There is also possibility for any of the tracking data to be <i>null</i> in case of absence in the entry point.
+
+Identifier (for instance MAC address) is required in the parameters of <i>asset_data</i> endpoint. However, time interval parameters are optional as it is shown below:
 
 <pre>
-+--------------------------------------------+
-| asset_data                                 |
-+-------------+------------------------------+
-|      Inputs | identifier*                  |
-|             | from                         |
-|             | to                           |
-|             | limit                        |
-+-------------+------------------------------+
-|     Outputs | Asset information            |
-|             | Sensor data as a list        |
-+-------------+------------------------------+
++----------------------------------------------------+
+| asset_data                                         |
++-------------+--------------------------------------+
+|      Inputs | Asset Identifier (e.g. MAC Address)* |
+|             | Time interval                        |
++-------------+--------------------------------------+
+|     Outputs | Asset information                    |
+|             | Sensor data as a list                |
++-------------+--------------------------------------+
 </pre>
 
-<h2>5.1 Queries with no data available</h2>
-
+<h2>6.1 Queries with no data available</h2>
 There are some cases in which there is no data. For example, in the specified time range, there was no shipping information for the asset (The shipping was finished before or has not started yet).
 
 In this case, the response will still be valid but with an empty list for data.
 
-<!--
-<h2>6 Access and Authentication</h2>
+Moreover, if the identifier (for instance the MAC address) was not found in the service, an empty list will be returned.
 
-Farmers MUST have an account setup on an asset_tracking service in order to authenticate and access API endpoints. The service implementor is responsible for the creation of accounts; it is not covered in the service template specifications.
+<h2>6.2 Queries with duplicate entries</h2>
+The service ensures that there would be no duplicate entries in the list of data. For instance there would be no two points with the same timestamp, location, and measurements.
 
-Unless specifically documented in the OpenAPI specifications, all API calls must include credentials in form of Bearer authentication (also called token authentication). Clients can obtain an access token on behalf of their user from the service's authorization server (see ATLAS service pairing).
-
-Some of the information held by advisor services may be considered sensitive from a GDPR perspective. The service's authorization server SHOULD request the client's end-user consent at service pairing time in order to deliver an access token.
-
--->
+<h2>6.3 Queries with invalid parameters</h2>
+If the input parameters are invalid, for instance a wrong timestamp is entered, an error message explaining the issue will be returned.
 
 <h2>ANNEX 1 - asset_tracking Measurement Types</h2>
 
-The current list of standardized measurement parameters that may be returned by asset_tracking services is listed below. Newer versions of the asset_tracking template are likely to extend this list.
+The current list of standardized measurement parameters associated to a location (latitude and longitude) that may be returned by asset_tracking services is listed below. Newer versions of the asset_tracking template are likely to extend this list.
 
 <table>
     <tr><td>PARAMETER</td><td>UNIT</td><td>DESCRIPTION</td></tr>
     <tr><td>temperature</td><td>&#8451;</td><td>Atmospheric Temperature</td></tr>
     <tr><td>humidity</td><td>%</td><td>Atmospheric Relative Humidity</td></tr>
     <tr><td>pressure</td><td>hPa</td><td>Atmospheric Pressure</td></tr>
-    <tr><td>gps.lat</td><td>Degree(&#176;)</td><td>Latitude</td></tr>
-    <tr><td>gps.long</td><td>Degree(&#176;)</td><td>Longitude</td></tr>
     </table>
 </body>
 </html>
