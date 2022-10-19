@@ -221,7 +221,7 @@
           },
           "limit": {
             "type": "integer",
-            "description": "Total number of data points to be returned; the latest #limit points are returned and earlier ones are omitted. When limit=0, all available points in the time range will be returned",
+            "description": "Total number of data points to be returned; the latest #limit points are returned and earlier ones are omitted. Service implementations are free to define a proprietary maximum value for limit. That same value must be used when limit=0 (or omitted)",
             "default": 0
           },
           "shipping_info": {
