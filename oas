@@ -1,343 +1,324 @@
 {
-    "openapi": "3.0.2",
-    "info": {
-        "title": "Asset Tracking Service Template",
-        "description": "Template for Asset Tracking services",
-        "version": "0.0.1"
-    },
-    "paths": {
-        "/tracking_data": {
-            "post": {
-                "tags": [
-                    "Asset Data"
-                ],
-                "summary": "Get tracking data for a returnable asset e.g. pallets",
-                "description": "Get tracking data for a returnable asset e.g. pallets with specified GSIN and SSCC GS1 specification uids<br>                     The data includes the timestamp, temperature, humidity, pressure and GPS coordinates of the asset in the specified time range.",
-                "operationId": "get_asset_data_tracking_data_post",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/TrackDataRequest"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/TrackDataResponse"
-                                },
-                                "example": {
-                                    "identifier": "12:34:56:78:90:AB",
-                                    "SSCC": "00512345678916851849",
-                                    "GSIN": "40212345678945787992",
-                                    "data": [
-                                        {
-                                            "timestamp": "2020-01-01T00:00:00Z",
-                                            "coordinates": [
-                                                43.54,
-                                                10.23
-                                            ],
-                                            "measurements": {
-                                                "temperature": 29.5,
-                                                "humidity": 50.1,
-                                                "pressure": 1020
-                                            }
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid or missing parameters",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "message": "general error message",
-                                    "errors": [
-                                        "optional",
-                                        "additional",
-                                        "details"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "message": "general error message",
-                                    "errors": [
-                                        "optional",
-                                        "additional",
-                                        "details"
-                                    ]
-                                }
-                            }
-                        }
-                    }
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Asset Tracking Service Template",
+    "description": "Track movements and environmental measurements of returnable assets",
+    "version": "0.0.1"
+  },
+  "externalDocs": {
+    "description": "Service template document",
+    "url": "https://htmlpreview.github.io/?https://github.com/atlasH2020-templates/asset_tracking/blob/wip0.0.1/doc.html"
+  },
+  "paths": {
+    "/tracking_data": {
+      "post": {
+        "tags": [
+          "Tracking"
+        ],
+        "summary": "Get tracking and environmental data for returnable assets (e.g. pallets)",
+        "description": "Get tracking data for returnable assets.<br>                     The data includes the location (lat, long), timestamp, and environmental attributes (e.g. temperature, humidity, pressure, ...)of an asset in a specified time range.",
+        "operationId": "tracking_data",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackingDataRequest"
+              },
+              "example": {
+                "identifier": "12:34:56:78:90:AB",
+                "from": "2022-10-17T13:34:29Z",
+                "limit": 10,
+                "shipment_info": {
+                  "GSIN": "40212345678945787993",
+                  "SSCC": "00512345678916851849"
                 }
+              }
             }
+          },
+          "required": true
         },
-        "/asset_data": {
-            "post": {
-                "tags": [
-                    "Asset Data"
-                ],
-                "summary": "Get tracking data for a returnable asset e.g. pallets by identifier (for instance MAC address)",
-                "description": "Get tracking data for a returnable asset e.g. pallets with specified identifier for instance MAC address<br>                 The data includes the timestamp, temperature, humidity, pressure and GPS coordinates of the asset in the specified time range.",
-                "operationId": "get_asset_data_by_identifier_asset_data_post",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/AssetDataRequest"
-                            }
-                        }
-                    },
-                    "required": true
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrackingDataResponse"
                 },
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AssetDataResponse"
-                                },
-                                "example": {
-                                    "identifier": "12:34:56:78:90:AB",
-                                    "data": [
-                                        {
-                                            "timestamp": "2020-01-01T00:00:00Z",
-                                            "coordinates": [
-                                                43.54,
-                                                10.23
-                                            ],
-                                            "measurements": {
-                                                "temperature": 29.5,
-                                                "humidity": 50.1,
-                                                "pressure": 1020
-                                            }
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid or missing parameters",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "message": "general error message",
-                                    "errors": [
-                                        "optional",
-                                        "additional",
-                                        "details"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "message": "general error message",
-                                    "errors": [
-                                        "optional",
-                                        "additional",
-                                        "details"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    },
-    "components": {
-        "schemas": {
-            "AssetDataRequest": {
-                "title": "AssetDataRequest",
-                "required": [
-                    "identifier"
-                ],
-                "type": "object",
-                "properties": {
-                    "identifier": {
-                        "type": "string",
-                        "description": "Physical identifier (for instance MAC address) of the asset.",
-                        "example": "12:34:56:78:90:AB"
-                    },
-                    "from": {
-                        "type": "string",
-                        "description": "The timestamp to start from",
-                        "format": "date-time",
-                        "default": "1980-01-01T00:00:00Z",
-                        "example": "2022-10-17T13:34:29Z"
-                    },
-                    "to": {
-                        "type": "string",
-                        "description": "The timestamp to end at",
-                        "format": "date-time",
-                        "default": "2022-10-18T13:34:29Z",
-                        "example": "2022-10-18T13:34:29Z"
-                    },
-                    "limit": {
-                        "type": "integer",
-                        "description": "Total number of data points to be returned",
-                        "default": 0,
-                        "example": 10
-                    }
-                },
-                "description": "Data Model for the data request, using device physical identifier (for instance MAC address)"
-            },
-            "AssetDataResponse": {
-                "title": "AssetDataResponse",
-                "type": "object",
-                "properties": {
-                    "identifier": {
-                        "type": "string",
-                        "description": "Physical identifier (for instance MAC Address) of the returnable asset",
-                        "example": "12:34:56:78:90:AB"
-                    },
-                    "data": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/SensorData"
-                        }
-                    }
-                },
-                "description": "Data model for the data response"
-            },
-            "Measurements": {
-                "title": "Measurements",
-                "type": "object",
-                "properties": {
-                    "temperature": {
-                        "type": "number",
-                        "description": "Measured temperature of the asset's temperature sensor in celsius degree",
-                        "example": 29.5
-                    },
-                    "humidity": {
-                        "type": "number",
-                        "description": "Measured humidity of the asset's humidity sensor in percentage",
-                        "example": 50.1
-                    },
-                    "pressure": {
-                        "type": "number",
-                        "description": "Measured pressure of the asset's pressure sensor in hectopascal",
-                        "example": 1020
-                    }
-                },
-                "description": "Data Model defining measurements for sensor data"
-            },
-            "SensorData": {
-                "title": "SensorData",
-                "type": "object",
-                "properties": {
-                    "timestamp": {
-                        "type": "string",
-                        "description": "ISO-8601 timestamp of the data point",
-                        "format": "date-time",
-                        "example": "2022-10-18T13:34:29Z"
-                    },
-                    "coordinates": {
-                        "type": "array",
-                        "items": {},
-                        "description": "Coordinate of the point, in WGS84 reference system. [Longitude, Latitude]",
-                        "example": [
-                            25.312,
-                            48.578
-                        ]
-                    },
+                "example": [
+                  {
+                    "timestamp": "2022-10-17T16:30:13Z",
+                    "coordinates": [
+                      43.54,
+                      10.23
+                    ],
                     "measurements": {
-                        "$ref": "#/components/schemas/Measurements"
+                      "temperature": 29.5,
+                      "humidity": 50.1,
+                      "pressure": 1020
                     }
-                },
-                "description": "Data Model for asset's sensor information. Information are as follows: <br>\nTimestamp in ISO-8601 format <br>\nGPS location:<br>\n    <ol>\n    <li> Latitude </li>\n    <li> Longitude </li>\n    </ol>\nMeasurements:<br>\n    <ol>\n    <li> Temperature in Celcius </li>\n    <li> Humidity in Percentage </li>\n    <li> Pressure in Hectopascal </li>\n    </ol>"
-            },
-            "TrackDataRequest": {
-                "title": "TrackDataRequest",
-                "required": [
-                    "GSIN",
-                    "SSCC"
-                ],
-                "type": "object",
-                "properties": {
-                    "GSIN": {
-                        "type": "string",
-                        "description": "GSIN of the returnable device.",
-                        "example": "40212345678945787993"
-                    },
-                    "SSCC": {
-                        "type": "string",
-                        "description": "SSCC of the returnable asset.",
-                        "example": "00512345678916851849"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or missing parameters",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "general error message",
+                  "errors": [
+                    "optional",
+                    "additional",
+                    "details"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown identifier",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "general error message",
+                  "errors": [
+                    "optional",
+                    "additional",
+                    "details"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shipment_asset": {
+      "post": {
+        "tags": [
+          "Shipment"
+        ],
+        "summary": "Get shipment asset",
+        "description": "Find the associated asset for a given shipment (GSIN/SSCC).",
+        "operationId": "shipment_asset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShippingInfo"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "required": [
+                    "identifier",
+                    "from"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "identifier": {
+                      "type": "string",
+                      "description": "The tracking identifier of the asset currently associated to the shipment. This identifier may be used to retrieve tracking data"
                     },
                     "from": {
-                        "type": "string",
-                        "description": "The ISO-8601 timestamp to start from",
-                        "format": "date-time",
-                        "default": "1980-01-01T00:00:00Z",
-                        "example": "2022-10-17T13:34:29Z"
+                      "type": "string",
+                      "description": "Timestamp at which the asset was associated to the shipment. Note that 'from' may be a date in the future if the association is planned but not yet effective",
+                      "format": "date-time"
                     },
                     "to": {
-                        "type": "string",
-                        "description": "The ISO-8601 timestamp to end at",
-                        "format": "date-time",
-                        "default": "2022-10-18T13:34:29Z",
-                        "example": "2022-10-18T13:34:29Z"
-                    },
-                    "limit": {
-                        "type": "integer",
-                        "description": "Total number of data points to be returned",
-                        "default": 0,
-                        "example": 10
+                      "type": "string",
+                      "description": "Timestamp at which the asset was (or will be) detached from the shipment.If omitted, the asset is currently still associated with the shipment",
+                      "format": "date-time"
                     }
+                  }
                 },
-                "description": "Data Model for the data request, using GSIN and SSCC identifiers"
-            },
-            "TrackDataResponse": {
-                "title": "TrackDataResponse",
-                "type": "object",
-                "properties": {
-                    "identifier": {
-                        "type": "string",
-                        "description": "Physical identifier (for instance MAC Address) of the returnable asset",
-                        "example": "12:34:56:78:90:AB"
-                    },
-                    "SSCC": {
-                        "type": "string",
-                        "description": "SSCC of the returnable asset",
-                        "example": "00512345678916851849"
-                    },
-                    "GSIN": {
-                        "type": "string",
-                        "description": "GSIN of the returnable asset",
-                        "example": "40212345678945787992"
-                    },
-                    "data": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/SensorData"
-                        }
-                    }
-                },
-                "description": "Data Model for the response of TrackingDataRequest"
+                "example": {
+                  "identifier": "12:34:56:78:90:AB",
+                  "from": "2022-10-17T12:00:00Z"
+                }
+              }
             }
+          },
+          "204": {
+            "description": "No physical identifier associated to GSIN/SSCC yet. A physical identifier may be associated at a later time.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "general error message",
+                  "errors": [
+                    "optional",
+                    "additional",
+                    "details"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or missing parameters",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "general error message",
+                  "errors": [
+                    "optional",
+                    "additional",
+                    "details"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "GSIN/SSCC do not exist",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "general error message",
+                  "errors": [
+                    "optional",
+                    "additional",
+                    "details"
+                  ]
+                }
+              }
+            }
+          }
         }
+      }
     }
+  },
+  "components": {
+    "schemas": {
+      "TrackingDataRequest": {
+        "required": [
+          "identifier"
+        ],
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "description": "Physical identifier (for instance, MAC address) of the asset."
+          },
+          "from": {
+            "type": "string",
+            "description": "The start timestamp to get data from. When omitted, all available tracking data for the asset until the 'to' timestamp will be returned",
+            "format": "date-time"
+          },
+          "to": {
+            "type": "string",
+            "description": "The timestamp until which to get tracking data. When omitted, all available tracking data starting from 'from' until the time of the request execution will be returned",
+            "format": "date-time"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Total number of data points to be returned; the latest #limit points are returned and earlier ones are omitted. When limit=0, all available points in the time range will be returned",
+            "default": 0
+          },
+          "shipping_info": {
+            "description": "Include only data points that are relative to the specified GSIN/SSCC",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ShippingInfo"
+              }
+            ]
+          }
+        }
+      },
+      "TrackingDataResponse": {
+        "required": [
+          "identifier",
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "description": "Physical identifier of the asset"
+          },
+          "data": {
+            "description": "Available tracking data. May be empty ([]) when no data is available but never null",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataPoint"
+            }
+          }
+        }
+      },
+      "DataPoint": {
+        "required": [
+          "timestamp",
+          "coordinates",
+          "measurements"
+        ],
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "ISO-8601 timestamp of the data point",
+            "format": "date-time"
+          },
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "description": "Coordinate of the point, in WGS84 reference system. [Longitude, Latitude]"
+          },
+          "measurements": {
+            "$ref": "#/components/schemas/Measurements"
+          }
+        }
+      },
+      "Measurements": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "type": "number",
+            "description": "Measured temperature of the asset's temperature sensor in celsius degree"
+          },
+          "humidity": {
+            "type": "number",
+            "description": "Measured humidity of the asset's humidity sensor in percentage"
+          },
+          "pressure": {
+            "type": "number",
+            "description": "Measured pressure of the asset's pressure sensor in hectopascal"
+          }
+        }
+      },
+      "ShippingInfo": {
+        "type": "object",
+        "required": [
+          "GSIN",
+          "SSCC"
+        ],
+        "properties": {
+          "SSCC": {
+            "type": "string",
+            "description": "SSCC of the returnable asset"
+          },
+          "GSIN": {
+            "type": "string",
+            "description": "GSIN of the returnable asset"
+          }
+        },
+        "example": {
+          "GSIN": "40212345678945787993",
+          "SSCC": "00512345678916851849"
+        }
+      }
+    }
+  }
 }
