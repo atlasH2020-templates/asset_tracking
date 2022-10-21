@@ -3,11 +3,11 @@
   "info": {
     "title": "Asset Tracking Service Template",
     "description": "Track movements and environmental measurements of returnable assets",
-    "version": "0.0.1"
+    "version": "0.0.2"
   },
   "externalDocs": {
     "description": "Service template document",
-    "url": "https://htmlpreview.github.io/?https://github.com/atlasH2020-templates/asset_tracking/blob/wip0.0.1/doc.html"
+    "url": "https://htmlpreview.github.io/?https://github.com/atlasH2020-templates/asset_tracking/blob/v0.0.2/doc.html"
   },
   "paths": {
     "/tracking_data": {
@@ -66,13 +66,18 @@
             "description": "Invalid or missing parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "general error message",
-                  "errors": [
-                    "optional",
-                    "additional",
-                    "details"
-                  ]
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or missing credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedError"
                 }
               }
             }
@@ -81,13 +86,18 @@
             "description": "Unknown identifier",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "general error message",
-                  "errors": [
-                    "optional",
-                    "additional",
-                    "details"
-                  ]
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedError"
                 }
               }
             }
@@ -149,31 +159,24 @@
             }
           },
           "204": {
-            "description": "No physical identifier associated to GSIN/SSCC yet. A physical identifier may be associated at a later time.",
-            "content": {
-              "application/json": {
-                "example": {
-                  "message": "general error message",
-                  "errors": [
-                    "optional",
-                    "additional",
-                    "details"
-                  ]
-                }
-              }
-            }
+            "description": "No physical identifier associated to GSIN/SSCC yet. A physical identifier may be associated at a later time."
           },
           "400": {
             "description": "Invalid or missing parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "general error message",
-                  "errors": [
-                    "optional",
-                    "additional",
-                    "details"
-                  ]
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or missing credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedError"
                 }
               }
             }
@@ -182,13 +185,18 @@
             "description": "GSIN/SSCC do not exist",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "general error message",
-                  "errors": [
-                    "optional",
-                    "additional",
-                    "details"
-                  ]
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedError"
                 }
               }
             }
@@ -317,6 +325,42 @@
         "example": {
           "GSIN": "40212345678945787993",
           "SSCC": "00512345678916851849"
+        }
+      },
+      "DetailedError": {
+        "type": "object",
+        "description": "This defines the structure of an error payload when one is present. Actual messages and additional error information content may change from one implementation to another",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "error description"
+          },
+          "status": {
+            "type": "string",
+            "format": "number",
+            "description": "http error code"
+          },
+          "error_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "A service's proprietary UI url where the user may navigate to view additional information or be prompted for additional actions to deal with the error. A well-behaved FMIS will present his users with a visual indication and the means to click on this link when this attribute is present."
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Additional detailed information"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "example": {
+          "message": "this is a sample error message",
+          "errors": [
+            "this is an example of additional error information"
+          ]
         }
       }
     }
