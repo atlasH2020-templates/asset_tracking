@@ -3,11 +3,11 @@
   "info": {
     "title": "Asset Tracking Service Template",
     "description": "Track movements and environmental measurements of returnable assets",
-    "version": "0.0.2"
+    "version": "0.0.1"
   },
   "externalDocs": {
     "description": "Service template document",
-    "url": "https://htmlpreview.github.io/?https://github.com/atlasH2020-templates/asset_tracking/blob/v0.0.2/doc.html"
+    "url": "https://htmlpreview.github.io/?https://github.com/atlasH2020-templates/asset_tracking/blob/v0.0.1/doc.html"
   },
   "paths": {
     "/tracking_data": {
