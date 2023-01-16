@@ -1,0 +1,148 @@
+{
+	"info": {
+		"_postman_id": "eee8cae4-a296-445e-bce0-c692565fab27",
+		"name": "ATLAS asset_tracking",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "shipment_asset",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var res = JSON.parse(responseBody);",
+							"if (res.identifier) {",
+							"    pm.environment.set(\"identifier\", res.identifier);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"GSIN\": \"{{gsin}}\",\n    \"SSCC\": \"{{sscc}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{asset_tracking_url}}/shipment_asset",
+					"host": [
+						"{{asset_tracking_url}}"
+					],
+					"path": [
+						"shipment_asset"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get tracking data",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"identifier\": \"{{identifier}}\",\n    \"from\": \"2022-10-17T13:34:29Z\",\n    \"limit\": 10\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{asset_tracking_url}}/tracking_data",
+					"host": [
+						"{{asset_tracking_url}}"
+					],
+					"path": [
+						"tracking_data"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get tracking data for specific shipment",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"identifier\": \"{{identifier}}\",\n    \"limit\": 10,\n    \"from\": \"2022-10-17T13:34:29Z\",\n    \"shipment_info\": {\n        \"GSIN\":\"{{gsin}}\",\n        \"SSCC\":\"{{sscc}}\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{asset_tracking_url}}/tracking_data",
+					"host": [
+						"{{asset_tracking_url}}"
+					],
+					"path": [
+						"tracking_data"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{asset_tracking_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "gsin",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "sscc",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "identifier",
+			"value": "",
+			"type": "default"
+		}
+	]
+}
