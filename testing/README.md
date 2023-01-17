@@ -12,4 +12,4 @@ Configure the `machine_tracking_url` variable in the atlas-h2020-variables envir
 
 You will also need to obtain a refresh token which you must save in the `machine_tracking_token` environment variable (see https://github.com/atlasH2020/testing#obtaining-a-service-token).
 
-You can now expirement with the machine_tracking API.
+You can now experiment with the machine_tracking API.
