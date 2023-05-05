@@ -1,0 +1,368 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Asset Tracking Service Template",
+    "description": "Track movements and environmental measurements of returnable assets",
+    "version": "0.0.1"
+  },
+  "externalDocs": {
+    "description": "Service template document",
+    "url": "https://htmlpreview.github.io/?https://github.com/atlasH2020-templates/asset_tracking/blob/v0.0.1/doc.html"
+  },
+  "paths": {
+    "/tracking_data": {
+      "post": {
+        "tags": [
+          "Tracking"
+        ],
+        "summary": "Get tracking and environmental data for returnable assets (e.g. pallets)",
+        "description": "Get tracking data for returnable assets.<br>                     The data includes the location (lat, long), timestamp, and environmental attributes (e.g. temperature, humidity, pressure, ...)of an asset in a specified time range.",
+        "operationId": "tracking_data",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackingDataRequest"
+              },
+              "example": {
+                "identifier": "12:34:56:78:90:AB",
+                "from": "2022-10-17T13:34:29Z",
+                "limit": 10,
+                "shipment_info": {
+                  "GSIN": "40212345678945787993",
+                  "SSCC": "00512345678916851849"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrackingDataResponse"
+                },
+                "example": [
+                  {
+                    "timestamp": "2022-10-17T16:30:13Z",
+                    "coordinates": [
+                      43.54,
+                      10.23
+                    ],
+                    "measurements": {
+                      "temperature": 29.5,
+                      "humidity": 50.1,
+                      "pressure": 1020
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or missing parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or missing credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown identifier",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shipment_asset": {
+      "post": {
+        "tags": [
+          "Shipment"
+        ],
+        "summary": "Get shipment asset",
+        "description": "Find the associated asset for a given shipment (GSIN/SSCC).",
+        "operationId": "shipment_asset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShippingInfo"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "required": [
+                    "identifier",
+                    "from"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "identifier": {
+                      "type": "string",
+                      "description": "The tracking identifier of the asset currently associated to the shipment. This identifier may be used to retrieve tracking data"
+                    },
+                    "from": {
+                      "type": "string",
+                      "description": "Timestamp at which the asset was associated to the shipment. Note that 'from' may be a date in the future if the association is planned but not yet effective",
+                      "format": "date-time"
+                    },
+                    "to": {
+                      "type": "string",
+                      "description": "Timestamp at which the asset was (or will be) detached from the shipment.If omitted, the asset is currently still associated with the shipment",
+                      "format": "date-time"
+                    }
+                  }
+                },
+                "example": {
+                  "identifier": "12:34:56:78:90:AB",
+                  "from": "2022-10-17T12:00:00Z"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No physical identifier associated to GSIN/SSCC yet. A physical identifier may be associated at a later time."
+          },
+          "400": {
+            "description": "Invalid or missing parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or missing credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "GSIN/SSCC do not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TrackingDataRequest": {
+        "required": [
+          "identifier"
+        ],
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "description": "Physical identifier (for instance, MAC address) of the asset."
+          },
+          "from": {
+            "type": "string",
+            "description": "The start timestamp to get data from. When omitted, all available tracking data for the asset until the 'to' timestamp will be returned",
+            "format": "date-time"
+          },
+          "to": {
+            "type": "string",
+            "description": "The timestamp until which to get tracking data. When omitted, all available tracking data starting from 'from' until the time of the request execution will be returned",
+            "format": "date-time"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Total number of data points to be returned; the latest #limit points are returned and earlier ones are omitted. Service implementations are free to define a proprietary maximum value for limit. That same value must be used when limit=0 (or omitted)",
+            "default": 0
+          },
+          "shipping_info": {
+            "description": "Include only data points that are relative to the specified GSIN/SSCC",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ShippingInfo"
+              }
+            ]
+          }
+        }
+      },
+      "TrackingDataResponse": {
+        "required": [
+          "identifier",
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "description": "Physical identifier of the asset"
+          },
+          "data": {
+            "description": "Available tracking data. May be empty ([]) when no data is available but never null",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataPoint"
+            }
+          }
+        }
+      },
+      "DataPoint": {
+        "required": [
+          "timestamp",
+          "coordinates",
+          "measurements"
+        ],
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "ISO-8601 timestamp of the data point",
+            "format": "date-time"
+          },
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "description": "Coordinate of the point, in WGS84 reference system. [Longitude, Latitude]"
+          },
+          "measurements": {
+            "$ref": "#/components/schemas/Measurements"
+          }
+        }
+      },
+      "Measurements": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "type": "number",
+            "description": "Measured temperature of the asset's temperature sensor in celsius degree"
+          },
+          "humidity": {
+            "type": "number",
+            "description": "Measured humidity of the asset's humidity sensor in percentage"
+          },
+          "pressure": {
+            "type": "number",
+            "description": "Measured pressure of the asset's pressure sensor in hectopascal"
+          }
+        }
+      },
+      "ShippingInfo": {
+        "type": "object",
+        "required": [
+          "GSIN",
+          "SSCC"
+        ],
+        "properties": {
+          "SSCC": {
+            "type": "string",
+            "description": "SSCC of the returnable asset"
+          },
+          "GSIN": {
+            "type": "string",
+            "description": "GSIN of the returnable asset"
+          }
+        },
+        "example": {
+          "GSIN": "40212345678945787993",
+          "SSCC": "00512345678916851849"
+        }
+      },
+      "DetailedError": {
+        "type": "object",
+        "description": "This defines the structure of an error payload when one is present. Actual messages and additional error information content may change from one implementation to another",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "error description"
+          },
+          "status": {
+            "type": "string",
+            "format": "number",
+            "description": "http error code"
+          },
+          "error_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "A service's proprietary UI url where the user may navigate to view additional information or be prompted for additional actions to deal with the error. A well-behaved FMIS will present his users with a visual indication and the means to click on this link when this attribute is present."
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Additional detailed information"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "example": {
+          "message": "this is a sample error message",
+          "errors": [
+            "this is an example of additional error information"
+          ]
+        }
+      }
+    }
+  }
+}

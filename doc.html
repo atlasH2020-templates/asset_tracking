@@ -1,0 +1,124 @@
+<html>
+<head>
+    <style type="text/css">
+        body { font-family: courier, courier new, monospace; font-size:12px; margin-left: 42px; width: 465px; white-space: pre-line; }
+        h2 { margin: 10px 0 0 -22px; font-size:12px; padding: 0 !important }
+        h3 { margin: 10px 0 0 -22px; font-size:11px; padding: 0 !important }
+        table { font-size: 10px; margin-left: -22px; width: 480px; }
+        div.header { padding: 0; margin: 0 0 0 -22px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+Experimental ATLAS Service Template Specification
+Name                                               asset_tracking
+Version                                                     0.0.1
+Author(s)                                           Pouria Faraji          
+</div>
+
+<h2>The "asset_tracking" ATLAS Service Template</h2>
+<div style="margin-left: -22px;">
+Abstract
+
+This document describes the specifications for the asset_tracking service template whose purpose is to track movements and environmental measurements of returnable assets.
+</div>
+<h2>1 Introduction</h2>
+
+The asset_tracking service template is designed to provide necessary APIs to track and trace returnable assets. Track and trace includes the following:
+<pre>
+    - Tracking data, which is for tracking real-time 
+    assets locations and environmental data
+    shipment referenced by GSIN and SSCC.
+
+    - Obtain the asset information associated with a given shipment.
+</pre>
+
+<h2>2 Terminology</h2>
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in RFC 2119 and indicate requirement levels for compliant implementations.
+
+The notation "[xxx]" (xxx in square brackets) is equivalent to "array of xxx".
+
+When used alone, the term "asset_tracking" refers to "asset_tracking ATLAS Service Template". Instead, "asset_tracking service" is equivalent to "an ATLAS Service implementing the asset_tracking ATLAS Service Template".
+
+<h3>2.1 Shipping Information</h3>
+The Global Shipment Identification Number (GSIN) is the GS1 Identification Key used to identify a logical grouping of logistic units for the purpose of a transport shipment from the seller to the buyer. The unique identifier consists of a GS1 Company Prefix, a Shipper Reference, and a Check Digit.
+
+The Serial Shipping Container Code (SSCC) is the GS1 identifier used to identify a logistic unit. This unique identifier consists of an Extension Digit, a GS1 Company Prefix, a Serial Reference, and a Check Digit.
+
+<h3>2.2 Tracking identifier</h3>
+Unique physical identifier of returnable assets, typically a MAC Address, including beacons and trackers, which are attached to pallets and containers.
+
+GSIN and SSCC both are unique identifiers in GS1 standard which are generated and assigned to logistic units while a shipment is being created. Whereas, tracking identifiers are hardcoded and never changes. Therefore, a container or pallet in mupltiple shipments during its lifetime can have multiple GSIN and SSCC.
+
+<h2>3 Pre-requisites</h2>
+
+A thorough understanding in the following is required for
+both service consumers or service provider implementors:
+<pre>
+    - World Geodetic Coordinate Reference System (WGS84) 
+      (<a href="https://gisgeography.com/wgs84-world-geodetic-system/">https://gisgeography.com/wgs84-world-geodetic-system/</a>) 
+    - ISO8601 representation of dates and times
+      (<a href="https://www.iso.org/iso-8601-date-and-time-format.html">https://www.iso.org/iso-8601-date-and-time-format.html</a>)
+</pre>
+<h2>4 asset_tracking Usage Scenarios</h2>
+
+The following are some examples of how the asset_tracking service can be used:
+<h3>4.1 Product Monitoring</h3>
+The "asset_tracking" service template can provide real-time temperature and humidity data for a product shipped using a pallet. In this case, the service can be used to see if products are in a good environment in terms of temperature and humidity.
+
+<h2>5 Service Template Structure</h2>
+Here the purpose of each API in the service template will be discussed.
+<h3>5.1 tracking_data</h3>
+The <i>tracking_data</i> endpoint provides tracking environmental information (e.g. temperature, humidity) for an asset, identified by a tracking identifier, at given times and locations.
+
+The request may include filtering attributes such as time ranges and or shipment information (GSIN/SSCC).
+
+<pre>
++------------------------------------------------+
+| tracking_data                                  |
++-------------+----------------------------------+
+|      Inputs | tracking identifier,             |
+|             | filtering parameters             |
++-------------+----------------------------------+
+|     Outputs | Tracking data points             |
++-------------+----------------------------------+
+</pre>
+
+Service must ensure that there are no duplicate tracking data entries. There must be no two tracking data points with the same location, and measurements within the same response.
+
+There are some cases in which there is no tracking data available. For example, in the specified time range, there was no tracking information for the asset based on the filtering criteria or parameters. In this case, the response will still be valid but with an empty list ([]) for data.
+
+If a request is made for an unknown tracking identifier, the service must return an appropriate error instead of a regular response.
+
+Please refer to the OpenAPI asset_tracking specification for details about data schemas and formats returned by the <i>tracking_data</i> endpoint, as well as to ANNEX 1 for a list of normalized environmental measurements that may be offered by asset_tracking services.
+
+<h3>5.2 shipment_asset</h3>
+The <i>shipment_asset</i> endpoint is used to retrieve that asset information associated to a given shipment. Given a GSIN/SSCC, if available, it returns the associated tracking identifier as well as the time range for which the association is active.
+
+<pre>
++----------------------------------------------------+
+| shipment_asset                                     |
++-------------+--------------------------------------+
+|      Inputs | Shipment info (GSIN/SSCC)            |
++-------------+--------------------------------------+
+|     Outputs | Tracking identifier,                 |
+|             | validity time range                  |
++-------------+--------------------------------------+
+</pre>
+
+Please refer to the OpenAPI asset_tracking specification for details about data schemas and formats returned by the <i>shipment_asset</i> endpoint.
+
+<h2>ANNEX 1 - Environmental Measurement Types</h2>
+
+This is a list of standardized measurement parameters that asset_tracking services must comply with. Newer versions of the asset_tracking template are likely to extend this list. Additional proprietary measurements may be included by some services.
+
+<table>
+    <tr><td>PARAMETER</td><td>UNIT</td><td>DESCRIPTION</td></tr>
+    <tr><td>temperature</td><td>&#8451;</td><td>Atmospheric Temperature</td></tr>
+    <tr><td>humidity</td><td>%</td><td>Atmospheric Relative Humidity</td></tr>
+    <tr><td>pressure</td><td>hPa</td><td>Atmospheric Pressure</td></tr>
+    </table>
+</body>
+</html>
