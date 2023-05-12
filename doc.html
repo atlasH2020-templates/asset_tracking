@@ -69,7 +69,7 @@ The <i>list_shipments</i> endpoint is used to retrieve information about shipmen
 |      Inputs | List shipments,                      |
 |             | filtering parameters                 |
 +-------------+--------------------------------------+
-|     Outputs | [shipment ID,type,status,date]       |
+|     Outputs | [shipment ID,descr,status,date]      |
 +-------------+--------------------------------------+
 </pre>
 
@@ -82,14 +82,14 @@ The <i>get_shipment_info</i> endpoint is used to retrieve detailed information a
 +-------------+--------------------------------------+
 |      Inputs | shipment ID                          |
 +-------------+--------------------------------------+
-|     Outputs | type, dates, locations, details      |
+|     Outputs | dessc, dates, locations, manifest    |
 +-------------+--------------------------------------+
 </pre>
 
 The shipment's details format will vary based on the shipment type. Please refer to the OpenAPI specifications.
 
 <h3>5.3 track_shipment</h3>
-The <i>track_shipment</i> endpoint provides tracking environmental information (e.g. temperature, humidity) for a shipment whose status is 'in_transit'.
+The <i>track_shipment</i> endpoint provides estimated arrival time and environmental information (e.g. temperature, humidity, ... when available) for a shipment whose status is 'in_transit'.
 
 The request may include filtering attributes such as time ranges.
 
@@ -108,34 +108,6 @@ Service must ensure that there are no duplicate tracking data entries. There mus
 There are some cases in which there is no tracking data available. For example, in the specified time range, there was no tracking information for the asset based on the filtering criteria or parameters. In this case, the response will still be valid but with an empty list ([]) for data.
 
 Please refer to the OpenAPI specification for details about data schemas and formats returned by the <i>track_shipment</i> endpoint, as well as to ANNEX 1 for a list of normalized environmental measurements that may be offered by asset_tracking services.
-
-<h2>6. Data Formats</h2>
-
-This section describes the minimum attributes required for the details of shipments. These details vary depending on the type of the shipment; the following types of shipments are currently defined:
-- livestock
-- other
-
-Note that unless otherwise specified, all documented attributes (for a particular type) are required. Non-standard additional attributes may be added at the discretion of the implementer.
-
-<h3>6.1 Livestock shipment details</h3>
-
-<pre>
-+----------------------------------------------------+
-|  {                                                 |
-|      "livestock_type": "...",                      |
-|      "count": ...                                  |
-|  }                                                 |
-+----------------------------------------------------+
-</pre>
-
-<h3>6.2 Other shipment details</h3>
-
-<pre>
-+----------------------------------------------------+
-|  {                                                 |
-|  }                                                 |
-+----------------------------------------------------+
-</pre>
 
 <h2>ANNEX 1 - Environmental Measurement Types</h2>
 

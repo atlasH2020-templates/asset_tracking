@@ -26,7 +26,7 @@
             "required": false,
             "example": "livestock",
             "schema": {
-              "$ref": "#/components/schemas/ShipmentType"
+              "$ref": "#/components/schemas/ShipmentContentType"
             }
           },
           {
@@ -61,7 +61,7 @@
                 "example": [
                   {
                     "id": "12345",
-                    "type": "livestock",
+                    "description": "cattle and pigs",
                     "status": "in_transit",
                     "pickup_date": "2022-10-17T12:00:00Z"
                   }
@@ -108,8 +108,7 @@
           "Shipment"
         ],
         "summary": "Get shipment info",
-        "description": "Get shipment info",
-        "operationId": "get_shipment_info",
+        "operationId": "get_shipment",
         "parameters": [
           {
             "description": "The ID of the shipment",
@@ -130,27 +129,33 @@
                 "schema": {
                   "$ref": "#/components/schemas/ShipmentInfo"
                 },
-                "example": [
-                  {
-                    "id": "12345",
-                    "type": "livestock",
-                    "status": "in_transit",
-                    "pickup_date": "2022-10-17T12:00:00Z",
-                    "delivery_date": "2022-10-17T14:00:00Z",
-                    "pickup_location": {
-                      "latitude": 47.47234095378895,
-                      "longitude": 8.475920390302981
-                    },
-                    "delivery_location": {
-                      "latitude": 47.39455609465865,
-                      "longitude": 8.506354255933608
-                    },
-                    "details": {
-                      "type": "pigs",
+                "example": {
+                  "id": "12345",
+                  "description": "cattle and pigs",
+                  "status": "in_transit",
+                  "pickup_date": "2022-10-17T12:00:00Z",
+                  "delivery_date": "2022-10-17T14:00:00Z",
+                  "pickup_location": {
+                    "latitude": 47.47234095378895,
+                    "longitude": 8.475920390302981
+                  },
+                  "delivery_location": {
+                    "latitude": 47.39455609465865,
+                    "longitude": 8.506354255933608
+                  },
+                  "manifest": [
+                    {
+                      "type": "livestock",
+                      "kind": "pigs",
                       "count": 97
+                    },
+                    {
+                      "type": "livestock",
+                      "kind": "cattle",
+                      "count": 20
                     }
-                  }
-                ]
+                  ]
+                }
               }
             }
           },
@@ -247,6 +252,7 @@
                 "example": [
                   {
                     "timestamp": "2022-10-17T16:30:13Z",
+                    "eta": "2022-10-17T17:00Z",
                     "location": {
                       "latitude": 43.54,
                       "longitude": 10.23
@@ -336,9 +342,9 @@
               "type": "string",
               "description": "The ID of the shipment."
             },
-            "type": {
-              "description": "The type of the shipment.",
-              "$ref": "#/components/schemas/ShipmentType"
+            "description": {
+              "type": "string",
+              "description": "Short human-readable description of the shipment."
             },
             "status": {
               "$ref": "#/components/schemas/ShipmentStatus"
@@ -351,7 +357,7 @@
           },
           "required": [
             "id",
-            "type",
+            "description",
             "status",
             "pickup_date"
           ]
@@ -364,10 +370,9 @@
             "type": "string",
             "description": "The ID of the shipment."
           },
-          "type": {
+          "description": {
             "type": "string",
-            "description": "The type of the shipment.",
-            "$ref": "#/components/schemas/ShipmentType"
+            "description": "Short human-readable description of the shipment."
           },
           "status": {
             "$ref": "#/components/schemas/ShipmentStatus"
@@ -392,18 +397,36 @@
             "type": "string",
             "description": "Optional human-readable notes related to the shipment."
           },
-          "details": {
-            "$ref": "#/components/schemas/ShipmentDetails"
+          "manifest": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "The type of content.",
+                      "$ref": "#/components/schemas/ShipmentContentType"
+                    }
+                  }
+                },
+                {
+                  "$ref": "#/components/schemas/ShipmentDetails"
+                }
+              ]
+            }
           }
         },
         "required": [
           "id",
-          "type",
+          "description",
           "status",
           "pickup_date",
           "delivery_date",
           "pickup_location",
-          "delivery_location"
+          "delivery_location",
+          "manifest"
         ]
       },
       "TrackingData": {
@@ -450,7 +473,7 @@
           ]
         }
       },
-      "ShipmentType": {
+      "ShipmentContentType": {
         "type": "string",
         "enum": [
           "livestock",
@@ -482,7 +505,7 @@
         ]
       },
       "ShipmentDetails": {
-        "description": "Depends on the shipment type",
+        "description": "Depends on the shipment content type",
         "oneOf": [
           {
             "$ref": "#/components/schemas/LivestockDetails"
@@ -496,7 +519,7 @@
         "description": "These parameters are returned for shipment.type=livestock",
         "type": "object",
         "properties": {
-          "type": {
+          "kind": {
             "type": "string",
             "enum": [
               "cattle",
