@@ -252,7 +252,7 @@
             }
           },
           "204": {
-            "description": "When shipment status is planned, or when shipment_status is completed and tracking data is not archived. Not a valid response when shipment_status is in_transit".
+            "description": "When shipment status is planned, or when shipment_status is completed and tracking data is not archived. Not a valid response when shipment_status is in_transit."
           },
           "400": {
             "description": "Invalid or missing parameters",
