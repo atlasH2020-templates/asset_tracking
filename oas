@@ -207,7 +207,7 @@
         "tags": [
           "Shipment"
         ],
-        "summary": "Get tracking data for returnable assets.",
+        "summary": "Get tracking data for returnable assets. There must be at least one entry when status=in_transit (pickup time/location); it is acceptable to include only last known time/location. Tracking data MAY also be returned for completed shipments. In all other cases 204 must be returned.",
         "operationId": "track_shipment",
         "parameters": [
           {
@@ -217,28 +217,12 @@
             "example": "12345"
           },
           {
-            "name": "from",
-            "type": "string",
-            "format": "date-time",
-            "in": "query",
-            "required": false,
-            "description": "The start timestamp to get data from. When omitted, all available tracking data for the asset until the 'to' timestamp will be returned"
-          },
-          {
-            "name": "to",
-            "type": "string",
-            "format": "date-time",
-            "in": "query",
-            "required": false,
-            "description": "The timestamp until which to get tracking data. When omitted, all available tracking data starting from 'from' until the time of the request execution will be returned"
-          },
-          {
             "name": "limit",
             "type": "integer",
             "default": 0,
             "in": "query",
             "required": false,
-            "description": "Total number of data points to be returned; the latest #limit points are returned and earlier ones are omitted. Service implementations are free to define a proprietary maximum value for limit. That same value must be used when limit=0 (or omitted)"
+            "description": "Max number of data points to be returned; the latest #limit points are returned and earlier ones are omitted. Service implementations are free to define a proprietary maximum value for limit. That same value must be used when limit=0 (or omitted)"
           }
         ],
         "responses": {
@@ -266,6 +250,9 @@
                 ]
               }
             }
+          },
+          "204": {
+            "description": "When shipment status is planned, or when shipment_status is completed and tracking data is not archived. Not a valid response when shipment_status is in_transit".
           },
           "400": {
             "description": "Invalid or missing parameters",
@@ -380,12 +367,12 @@
           "pickup_date": {
             "type": "string",
             "format": "date-time",
-            "description": "The date/time when the shipment was picked up or is planned for pickup"
+            "description": "The date/time when the shipment was picked up (status=in_transit|completed) or is planned for pickup"
           },
           "delivery_date": {
             "type": "string",
             "format": "date-time",
-            "description": "The date/time of the shipment's actual delivery, or the expected delivery date/time."
+            "description": "The date/time of the shipment's actual delivery (status=completed), or the planned delivery date/time."
           },
           "pickup_location": {
             "$ref": "#/components/schemas/Location"
@@ -399,6 +386,7 @@
           },
           "manifest": {
             "type": "array",
+            "minItems": 1,
             "items": {
               "allOf": [
                 {
@@ -430,8 +418,9 @@
         ]
       },
       "TrackingData": {
-        "description": "Available tracking data. May be empty ([]) when no data is available, or only contain the last known information (single entry) but never null",
+        "description": "Tracking data for shipments in_transit. May optionally be returned as well for completed shipments.",
         "type": "array",
+        "minItems": 1,
         "items": {
           "type": "object",
           "properties": {

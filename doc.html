@@ -69,7 +69,7 @@ The <i>list_shipments</i> endpoint is used to retrieve information about shipmen
 |      Inputs | List shipments,                      |
 |             | filtering parameters                 |
 +-------------+--------------------------------------+
-|     Outputs | [shipment ID,descr,status,date]      |
+|     Outputs | [shipment ID,desc,status,date]       |
 +-------------+--------------------------------------+
 </pre>
 
@@ -82,7 +82,7 @@ The <i>get_shipment_info</i> endpoint is used to retrieve detailed information a
 +-------------+--------------------------------------+
 |      Inputs | shipment ID                          |
 +-------------+--------------------------------------+
-|     Outputs | dessc, dates, locations, manifest    |
+|     Outputs | desc, dates, locations, manifest     |
 +-------------+--------------------------------------+
 </pre>
 
@@ -91,21 +91,17 @@ The shipment's details format will vary based on the shipment type. Please refer
 <h3>5.3 track_shipment</h3>
 The <i>track_shipment</i> endpoint provides estimated arrival time and environmental information (e.g. temperature, humidity, ... when available) for a shipment whose status is 'in_transit'.
 
-The request may include filtering attributes such as time ranges.
-
 <pre>
 +------------------------------------------------+
 | track_shipment                                 |
 +-------------+----------------------------------+
-|      Inputs | shipment ID,filtering parameters |
+|      Inputs | shipment ID                      |
 +-------------+----------------------------------+
 |     Outputs | Tracking data points             |
 +-------------+----------------------------------+
 </pre>
 
-Service must ensure that there are no duplicate tracking data entries. There must be no two tracking data points with the same location, and measurements within the same response.
-
-There are some cases in which there is no tracking data available. For example, in the specified time range, there was no tracking information for the asset based on the filtering criteria or parameters. In this case, the response will still be valid but with an empty list ([]) for data.
+It is acceptable to return only the last known tracking point; otherwise, service must ensure that there are no duplicate tracking data entries. There must be no two tracking data points with the same location, and measurements within the same response.
 
 Please refer to the OpenAPI specification for details about data schemas and formats returned by the <i>track_shipment</i> endpoint, as well as to ANNEX 1 for a list of normalized environmental measurements that may be offered by asset_tracking services.
 
